@@ -1,4 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module GHCJS.JSVal.Aeson.TestsSpec where
 
@@ -35,6 +37,10 @@ spec = do
       summary <- hspecSilently $ genericToJSValTests correctProxy
       summary `shouldBe` Summary 1 0
 
+    it "creates passing tests for sum types" $ do
+      summary <- hspecSilently $ genericToJSValTests correctSumProxy
+      summary `shouldBe` Summary 1 0
+
 data Faulty
   = Faulty {
     faultyFoo :: String,
@@ -46,9 +52,10 @@ faultyProxy :: Proxy Faulty
 faultyProxy = Proxy
 
 instance ToJSVal Faulty
+
 instance ToJSON Faulty where
   toJSON = genericToJSON defaultOptions{
-    fieldLabelModifier = drop (length "faulty")
+    fieldLabelModifier = drop (length ("faulty" :: String))
   }
 
 instance Arbitrary Faulty where
@@ -65,7 +72,35 @@ correctProxy :: Proxy Correct
 correctProxy = Proxy
 
 instance ToJSVal Correct
+
 instance ToJSON Correct
 
 instance Arbitrary Correct where
   arbitrary = Correct <$> arbitrary <*> arbitrary
+
+data CorrectSum
+  = Foo {
+    correctSumFoo :: String
+  }
+  | Bar {
+    correctSumFoo :: String,
+    correctSumBar :: String
+  }
+  deriving (Show, Generic)
+
+correctSumProxy :: Proxy CorrectSum
+correctSumProxy = Proxy
+
+instance ToJSVal CorrectSum
+
+instance ToJSON CorrectSum where
+  toJSON = \ case
+    Foo foo -> object ["Foo" .= foo]
+    Bar foo bar -> object
+      ["Bar" .= object ["correctSumFoo" .= foo, "correctSumBar" .= bar]]
+
+instance Arbitrary CorrectSum where
+  arbitrary = oneof $
+    (Foo <$> arbitrary) :
+    (Bar <$> arbitrary <*> arbitrary) :
+    []
