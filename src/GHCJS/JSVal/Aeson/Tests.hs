@@ -19,7 +19,8 @@ import           GHCJS.Types
 import           Test.Hspec
 import           Test.QuickCheck
 
--- | fixme: mention HUnit and hspec
+-- | Generically create an hspec 'Spec' that tests whether the 'ToJSVal'
+-- and the 'ToJSON' instances for the given datatype match.
 genericToJSValTests :: forall a . (Typeable a, Show a, Arbitrary a, ToJSVal a, ToJSON a) =>
   Proxy a -> Spec
 genericToJSValTests proxy = do

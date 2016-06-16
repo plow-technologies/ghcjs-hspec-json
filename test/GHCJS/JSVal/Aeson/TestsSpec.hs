@@ -61,11 +61,11 @@ data Correct
   }
   deriving (Show, Generic)
 
+correctProxy :: Proxy Correct
+correctProxy = Proxy
+
 instance ToJSVal Correct
 instance ToJSON Correct
 
 instance Arbitrary Correct where
   arbitrary = Correct <$> arbitrary <*> arbitrary
-
-correctProxy :: Proxy Correct
-correctProxy = Proxy
