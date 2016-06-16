@@ -2,7 +2,16 @@ name: ghcjs-hspec-jsval-aeson
 version: "0.1"
 
 dependencies:
-  - base < 5
+      - base < 5
+      - hspec
+      - aeson
+      - QuickCheck
+      - ghcjs-base
+      - string-conversions
+      - bytestring
+
+ghc-options:
+  -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
 
 library:
   source-dirs:
@@ -13,5 +22,7 @@ tests:
     main: Spec.hs
     source-dirs:
       - test
+      - src
     dependencies:
-      - hspec
+      - hspec-core
+      - temporary

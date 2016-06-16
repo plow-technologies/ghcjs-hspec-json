@@ -10,8 +10,15 @@ cabal-version:  >= 1.10
 library
   hs-source-dirs:
       src
+  ghc-options: -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
   build-depends:
       base < 5
+    , hspec
+    , aeson
+    , QuickCheck
+    , ghcjs-base
+    , string-conversions
+    , bytestring
   exposed-modules:
       GHCJS.JSVal.Aeson.Tests
   default-language: Haskell2010
@@ -21,9 +28,19 @@ test-suite spec
   main-is: Spec.hs
   hs-source-dirs:
       test
+    , src
+  ghc-options: -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
   build-depends:
       base < 5
     , hspec
+    , aeson
+    , QuickCheck
+    , ghcjs-base
+    , string-conversions
+    , bytestring
+    , hspec-core
+    , temporary
   other-modules:
       GHCJS.JSVal.Aeson.TestsSpec
+      GHCJS.JSVal.Aeson.Tests
   default-language: Haskell2010
