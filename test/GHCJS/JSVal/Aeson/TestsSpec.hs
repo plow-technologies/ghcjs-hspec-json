@@ -31,6 +31,10 @@ spec = do
       summary <- hspecSilently $ genericToJSValTests faultyProxy
       summary `shouldBe` Summary 1 1
 
+    it "creates passing tests for correct serialization" $ do
+      summary <- hspecSilently $ genericToJSValTests correctProxy
+      summary `shouldBe` Summary 1 0
+
 data Faulty
   = Faulty {
     faultyFoo :: String,
@@ -50,3 +54,18 @@ instance ToJSON Faulty where
 instance Arbitrary Faulty where
   arbitrary = Faulty <$> arbitrary <*> arbitrary
 
+data Correct
+  = Correct {
+    correctFoo :: String,
+    correctBar :: String
+  }
+  deriving (Show, Generic)
+
+instance ToJSVal Correct
+instance ToJSON Correct
+
+instance Arbitrary Correct where
+  arbitrary = Correct <$> arbitrary <*> arbitrary
+
+correctProxy :: Proxy Correct
+correctProxy = Proxy
