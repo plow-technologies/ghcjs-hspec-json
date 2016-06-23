@@ -6,6 +6,7 @@ module Test.Hspec.Json.GHCJS (
   genericToJSValTests,
   genericFromJSValTests,
   genericAesonToJSVal,
+  genericJSValToAeson,
 
   -- re-export
   Proxy(..),
@@ -36,8 +37,8 @@ genericToJSValTests proxy = do
     it "converts to JSON compatible with aeson" $ do
       property $ \ (a :: a) -> do
         jsVal <- toJSVal a
-        jsValAsString <- unpack <$> jsonStringify jsVal
-        Aeson.encode a `shouldBeSameJson` cs jsValAsString
+        jsValAsByteString <- jsonStringify jsVal
+        Aeson.encode a `shouldBeSameJson` jsValAsByteString
 
 shouldBeSameJson :: ByteString -> ByteString -> IO ()
 shouldBeSameJson a b = do
@@ -73,6 +74,19 @@ genericAesonToJSVal proxy = do
       shouldBeIdentity proxy $
         Aeson.encode >>> jsonParse >=> fromJSValIO
 
+-- | Returns tests that make sure that values can be serialized to JSON using
+-- `toJSVal` and then read back into Haskell values using `aeson`.
+--
+-- This is a common case when sending values from a client to a server.
+genericJSValToAeson :: forall a .
+  (Typeable a, Show a, Eq a, Arbitrary a, ToJSVal a, FromJSON a) =>
+  Proxy a -> Spec
+genericJSValToAeson proxy = do
+  describe ("JSON encoding of " ++ show (typeRep proxy)) $ do
+    it "allows to encode values with ToJSVal and decode with aeson" $ do
+      shouldBeIdentity proxy $
+        toJSVal >=> jsonStringify >=> aesonDecodeIO
+
 -- * utils
 
 shouldBeIdentity :: (Eq a, Show a, Arbitrary a) =>
@@ -87,11 +101,19 @@ fromJSValIO jsVal = fromJSVal jsVal >>= \ case
   Nothing -> throwIO $ ErrorCall
     ("fromJSVal couldn't convert to type " ++ show (typeRep (Proxy :: Proxy a)))
 
+aesonDecodeIO :: FromJSON a => ByteString -> IO a
+aesonDecodeIO bs = case eitherDecode bs of
+  Right a -> return a
+  Left msg -> throwIO $ ErrorCall
+    ("aeson couldn't parse value: " ++ msg)
+
 -- * ffi json stuff
 
+jsonStringify :: JSVal -> IO ByteString
+jsonStringify jsVal = cs <$> unpack <$> json_stringify jsVal
 foreign import javascript unsafe
   "JSON.stringify($1)"
-  jsonStringify :: JSVal -> IO JSString
+  json_stringify :: JSVal -> IO JSString
 
 jsonParse :: ByteString -> IO JSVal
 jsonParse = json_parse . pack . cs
