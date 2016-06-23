@@ -32,7 +32,7 @@ library
     , string-conversions
     , bytestring
   exposed-modules:
-      GHCJS.JSVal.Aeson.Tests
+      Test.Hspec.Json.GHCJS
   default-language: Haskell2010
 
 test-suite spec
@@ -53,6 +53,6 @@ test-suite spec
     , hspec-core
     , temporary
   other-modules:
-      GHCJS.JSVal.Aeson.TestsSpec
-      GHCJS.JSVal.Aeson.Tests
+      Test.Hspec.Json.GHCJSSpec
+      Test.Hspec.Json.GHCJS
   default-language: Haskell2010

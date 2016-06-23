@@ -1,7 +1,7 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module GHCJS.JSVal.Aeson.Tests (
+module Test.Hspec.Json.GHCJS (
   genericToJSValTests,
 
   -- re-export

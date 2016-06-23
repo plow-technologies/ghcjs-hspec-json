@@ -2,7 +2,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module GHCJS.JSVal.Aeson.TestsSpec where
+module Test.Hspec.Json.GHCJSSpec where
 
 import           Data.Aeson
 import           Data.Aeson.Types
@@ -14,7 +14,7 @@ import           Test.Hspec
 import           Test.Hspec.Core.Runner
 import           Test.QuickCheck
 
-import           GHCJS.JSVal.Aeson.Tests
+import           Test.Hspec.Json.GHCJS
 
 hspecSilently :: Spec -> IO Summary
 hspecSilently s = do
