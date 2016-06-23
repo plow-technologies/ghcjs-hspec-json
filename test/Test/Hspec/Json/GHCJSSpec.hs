@@ -9,6 +9,8 @@ import           Data.Aeson
 import           Data.Aeson.Types
 import           GHC.Generics
 import           GHCJS.Marshal
+import           GHCJS.Types
+import           JavaScript.Object as JSO
 import           System.IO
 import           System.IO.Temp
 import           Test.Hspec
@@ -76,6 +78,17 @@ spec = do
       it "creates passing tests for sum types" $ do
         genericJSValToAeson correctSumProxy `shouldTestAs` Summary 1 0
 
+  describe "genericJSValRoundtrip" $ do
+    it "detects incompatible json encodings" $ do
+      genericJSValRoundtrip faultyRoundtripProxy `shouldTestAs` Summary 1 1
+
+    context "when used with compatible encodings" $ do
+      it "creates passing tests" $ do
+        genericJSValRoundtrip correctProxy `shouldTestAs` Summary 1 0
+
+      it "creates passing tests for sum types" $ do
+        genericJSValRoundtrip correctSumProxy `shouldTestAs` Summary 1 0
+
 data Faulty
   = Faulty {
     faultyFoo :: String,
@@ -102,6 +115,31 @@ instance FromJSON Faulty where
 
 instance Arbitrary Faulty where
   arbitrary = Faulty <$> arbitrary <*> arbitrary
+
+-- | Type where roundtrips don't work.
+data FaultyRoundtrip
+  = FaultyRoundtrip {
+    faultyRoundtripFoo :: String,
+    faultyRoundtripBar :: Int
+  }
+  deriving (Show, Eq, Generic)
+
+faultyRoundtripProxy :: Proxy FaultyRoundtrip
+faultyRoundtripProxy = Proxy
+
+instance ToJSVal FaultyRoundtrip where
+  toJSVal x = do
+    new <- JSO.create
+    foo <- toJSVal $ faultyRoundtripFoo x
+    JSO.setProp "foo" foo new
+    bar <- toJSVal $ faultyRoundtripBar x
+    JSO.setProp "bar" bar new
+    return $ jsval new
+
+instance FromJSVal FaultyRoundtrip
+
+instance Arbitrary FaultyRoundtrip where
+  arbitrary = FaultyRoundtrip <$> arbitrary <*> arbitrary
 
 data Correct
   = Correct {

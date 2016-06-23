@@ -7,6 +7,7 @@ module Test.Hspec.Json.GHCJS (
   genericFromJSValTests,
   genericAesonToJSVal,
   genericJSValToAeson,
+  genericJSValRoundtrip,
 
   -- re-export
   Proxy(..),
@@ -86,6 +87,15 @@ genericJSValToAeson proxy = do
     it "allows to encode values with ToJSVal and decode with aeson" $ do
       shouldBeIdentity proxy $
         toJSVal >=> jsonStringify >=> aesonDecodeIO
+
+genericJSValRoundtrip :: forall a .
+  (Typeable a, Eq a, Show a, Arbitrary a, ToJSVal a, FromJSVal a) =>
+  Proxy a -> Spec
+genericJSValRoundtrip proxy = do
+  describe ("JSON encoding of " ++ show (typeRep proxy)) $ do
+    it "allows to encode values with JSVal and read them back" $ do
+      shouldBeIdentity proxy $
+        toJSVal >=> fromJSValIO
 
 -- * utils
 
