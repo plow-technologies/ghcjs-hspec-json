@@ -27,33 +27,32 @@ hspecSilently s = do
         }
     hspecWithResult silentConfig s
 
+shouldTestAs :: Spec -> Summary -> IO ()
+shouldTestAs spec expected = do
+  summary <- hspecSilently spec
+  summary `shouldBe` expected
+
 spec :: Spec
 spec = do
   describe "genericToJSValTests" $ do
     it "detects faulty ToJSVal instances" $ do
-      summary <- hspecSilently $ genericToJSValTests faultyProxy
-      summary `shouldBe` Summary 1 1
+      genericToJSValTests faultyProxy `shouldTestAs` Summary 1 1
 
     it "creates passing tests for correct serialization" $ do
-      summary <- hspecSilently $ genericToJSValTests correctProxy
-      summary `shouldBe` Summary 1 0
+      genericToJSValTests correctProxy `shouldTestAs` Summary 1 0
 
     it "creates passing tests for sum types" $ do
-      summary <- hspecSilently $ genericToJSValTests correctSumProxy
-      summary `shouldBe` Summary 1 0
+      genericToJSValTests correctSumProxy `shouldTestAs` Summary 1 0
 
   describe "genericFromJSValTests" $ do
     it "detects faulty FromJSVal instances" $ do
-      summary <- hspecSilently $ genericFromJSValTests faultyProxy
-      summary `shouldBe` Summary 1 1
+      genericFromJSValTests faultyProxy `shouldTestAs` Summary 1 1
 
     it "creates passing tests for correct serialization" $ do
-      summary <- hspecSilently $ genericFromJSValTests correctProxy
-      summary `shouldBe` Summary 1 0
+      genericFromJSValTests correctProxy `shouldTestAs` Summary 1 0
 
     it "creates passing tests for sum types" $ do
-      summary <- hspecSilently $ genericFromJSValTests correctSumProxy
-      summary `shouldBe` Summary 1 0
+      genericFromJSValTests correctSumProxy `shouldTestAs` Summary 1 0
 
 data Faulty
   = Faulty {
