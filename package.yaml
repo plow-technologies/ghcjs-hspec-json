@@ -20,7 +20,8 @@ dependencies:
       - bytestring
 
 ghc-options: >
-  -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
+  -Werror -Wall
+  -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
   -fno-warn-name-shadowing
 
 library:

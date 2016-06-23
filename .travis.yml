@@ -5,6 +5,9 @@ addons:
     packages:
       - libgmp-dev
 
+before_install:
+  - "export CASHER_TIME_OUT=500"
+
 install:
   # stack
   - mkdir -p ~/.local/bin
@@ -15,8 +18,8 @@ install:
 
 script:
   - stack setup --no-terminal
-  - stack build --ghc-options=-Werror --no-terminal
-  - stack test --ghc-options=-Werror --no-terminal
+  - stack build --no-terminal
+  - stack test --no-terminal
 
 cache:
   directories:
