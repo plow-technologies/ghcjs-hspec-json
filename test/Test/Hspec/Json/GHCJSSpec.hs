@@ -54,6 +54,17 @@ spec = do
     it "creates passing tests for sum types" $ do
       genericFromJSValTests correctSumProxy `shouldTestAs` Summary 1 0
 
+  describe "genericAesonToJSVal" $ do
+    it "detects incompatible json encodings" $ do
+      genericAesonToJSVal faultyProxy `shouldTestAs` Summary 1 1
+
+    context "when used with compatible encodings" $ do
+      it "creates passing tests" $ do
+        genericAesonToJSVal correctProxy `shouldTestAs` Summary 1 0
+
+      it "creates passing tests for sum types" $ do
+        genericAesonToJSVal correctSumProxy `shouldTestAs` Summary 1 0
+
 data Faulty
   = Faulty {
     faultyFoo :: String,
