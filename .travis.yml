@@ -1,0 +1,23 @@
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - libgmp-dev
+
+install:
+  # stack
+  - mkdir -p ~/.local/bin
+  - export PATH=~/.local/bin:$PATH
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+  - stack --version
+  - (cd /tmp ; stack --resolver=lts-5.12 install hspec-discover)
+
+script:
+  - stack setup --no-terminal
+  - stack build --ghc-options=-Werror --no-terminal
+  - stack test --ghc-options=-Werror --no-terminal
+
+cache:
+  directories:
+    - $HOME/.stack
