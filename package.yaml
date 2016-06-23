@@ -19,8 +19,9 @@ dependencies:
       - string-conversions
       - bytestring
 
-ghc-options:
+ghc-options: >
   -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
+  -fno-warn-name-shadowing
 
 library:
   source-dirs:

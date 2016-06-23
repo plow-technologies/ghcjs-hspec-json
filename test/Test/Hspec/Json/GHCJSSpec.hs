@@ -4,6 +4,7 @@
 
 module Test.Hspec.Json.GHCJSSpec where
 
+import           Control.Applicative
 import           Data.Aeson
 import           Data.Aeson.Types
 import           GHC.Generics
@@ -41,12 +42,25 @@ spec = do
       summary <- hspecSilently $ genericToJSValTests correctSumProxy
       summary `shouldBe` Summary 1 0
 
+  describe "genericFromJSValTests" $ do
+    it "detects faulty FromJSVal instances" $ do
+      summary <- hspecSilently $ genericFromJSValTests faultyProxy
+      summary `shouldBe` Summary 1 1
+
+    it "creates passing tests for correct serialization" $ do
+      summary <- hspecSilently $ genericFromJSValTests correctProxy
+      summary `shouldBe` Summary 1 0
+
+    it "creates passing tests for sum types" $ do
+      summary <- hspecSilently $ genericFromJSValTests correctSumProxy
+      summary `shouldBe` Summary 1 0
+
 data Faulty
   = Faulty {
     faultyFoo :: String,
     faultyBar :: String
   }
-  deriving (Show, Generic)
+  deriving (Show, Eq, Generic)
 
 faultyProxy :: Proxy Faulty
 faultyProxy = Proxy
@@ -58,6 +72,13 @@ instance ToJSON Faulty where
     fieldLabelModifier = drop (length ("faulty" :: String))
   }
 
+instance FromJSVal Faulty
+
+instance FromJSON Faulty where
+  parseJSON = genericParseJSON defaultOptions{
+    fieldLabelModifier = drop (length ("faulty" :: String))
+  }
+
 instance Arbitrary Faulty where
   arbitrary = Faulty <$> arbitrary <*> arbitrary
 
@@ -66,7 +87,7 @@ data Correct
     correctFoo :: String,
     correctBar :: String
   }
-  deriving (Show, Generic)
+  deriving (Show, Eq, Generic)
 
 correctProxy :: Proxy Correct
 correctProxy = Proxy
@@ -74,6 +95,10 @@ correctProxy = Proxy
 instance ToJSVal Correct
 
 instance ToJSON Correct
+
+instance FromJSVal Correct
+
+instance FromJSON Correct
 
 instance Arbitrary Correct where
   arbitrary = Correct <$> arbitrary <*> arbitrary
@@ -86,7 +111,7 @@ data CorrectSum
     correctSumFoo :: String,
     correctSumBar :: String
   }
-  deriving (Show, Generic)
+  deriving (Show, Eq, Generic)
 
 correctSumProxy :: Proxy CorrectSum
 correctSumProxy = Proxy
@@ -98,6 +123,14 @@ instance ToJSON CorrectSum where
     Foo foo -> object ["Foo" .= foo]
     Bar foo bar -> object
       ["Bar" .= object ["correctSumFoo" .= foo, "correctSumBar" .= bar]]
+
+instance FromJSVal CorrectSum
+
+instance FromJSON CorrectSum where
+  parseJSON = withObject "CorrectSum" $ \ o ->
+    (Foo <$> o .: "Foo") <|>
+    (o .: "Bar" >>= \ dict ->
+      Bar <$> dict .: "correctSumFoo" <*> dict .: "correctSumBar")
 
 instance Arbitrary CorrectSum where
   arbitrary = oneof $
