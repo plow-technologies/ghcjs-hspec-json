@@ -1,10 +1,14 @@
-name: ghcjs-hspec-jsval-aeson
+name: ghcjs-hspec-json
 version: "0.1"
 description: generically create tests to make sure aeson instances and
   serialization through 'JSVal' agree on JSON formats
 synopsis: generic tests for aeson and 'JSVal'
 category: Web, Development
 maintainer: SoenkeHahn@gmail.com
+license: BSD3
+license-file: LICENSE
+
+github: soenkehahn/ghcjs-hspec-json
 
 dependencies:
       - base < 5

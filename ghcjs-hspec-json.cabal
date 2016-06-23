@@ -2,14 +2,22 @@
 --
 -- see: https://github.com/sol/hpack
 
-name:           ghcjs-hspec-jsval-aeson
+name:           ghcjs-hspec-json
 version:        0.1
 synopsis:       generic tests for aeson and 'JSVal'
 description:    generically create tests to make sure aeson instances and serialization through 'JSVal' agree on JSON formats
 category:       Web, Development
+homepage:       https://github.com/soenkehahn/ghcjs-hspec-json#readme
+bug-reports:    https://github.com/soenkehahn/ghcjs-hspec-json/issues
 maintainer:     SoenkeHahn@gmail.com
+license:        BSD3
+license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
+
+source-repository head
+  type: git
+  location: https://github.com/soenkehahn/ghcjs-hspec-json
 
 library
   hs-source-dirs:
