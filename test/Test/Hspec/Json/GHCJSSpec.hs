@@ -89,6 +89,17 @@ spec = do
       it "creates passing tests for sum types" $ do
         genericJSValRoundtrip correctSumProxy `shouldTestAs` Summary 1 0
 
+  describe "genericAesonRoundtrip" $ do
+    it "detects incompatible json encodings" $ do
+      genericAesonRoundtrip faultyRoundtripProxy `shouldTestAs` Summary 1 1
+
+    context "when used with compatible encodings" $ do
+      it "creates passing tests" $ do
+        genericAesonRoundtrip correctProxy `shouldTestAs` Summary 1 0
+
+      it "creates passing tests for sum types" $ do
+        genericAesonRoundtrip correctSumProxy `shouldTestAs` Summary 1 0
+
 data Faulty
   = Faulty {
     faultyFoo :: String,
@@ -137,6 +148,14 @@ instance ToJSVal FaultyRoundtrip where
     return $ jsval new
 
 instance FromJSVal FaultyRoundtrip
+
+instance ToJSON FaultyRoundtrip where
+  toJSON x = object $
+    "foo" .= faultyRoundtripFoo x :
+    "bar" .= faultyRoundtripBar x :
+    []
+
+instance FromJSON FaultyRoundtrip
 
 instance Arbitrary FaultyRoundtrip where
   arbitrary = FaultyRoundtrip <$> arbitrary <*> arbitrary
