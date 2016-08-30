@@ -1,7 +1,7 @@
-packages:
-  - ./.
+resolver: lts-6.14
 
-resolver: lts-5.12
+packages:
+- '.'
 
 compiler: ghcjs-0.2.0.20160414_ghc-7.10.3
 compiler-check: match-exact

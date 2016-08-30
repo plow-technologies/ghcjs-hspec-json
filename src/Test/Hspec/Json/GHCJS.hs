@@ -151,6 +151,7 @@ jsonParse :: ByteString -> IO JSVal
 jsonParse = toJSVal . pack . cs
 -}
 -- original code
+jsonParse :: ByteString -> IO JSVal
 jsonParse = json_parse . pack . cs
 foreign import javascript unsafe
   "JSON.parse($1)"
