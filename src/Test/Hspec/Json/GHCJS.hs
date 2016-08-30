@@ -19,7 +19,10 @@ import           Control.Exception
 import           Control.Monad
 import qualified Data.Aeson as Aeson
 import           Data.Aeson as Aeson hiding (encode)
+import qualified Data.ByteString as BS
 import           Data.ByteString.Lazy (ByteString)
+import qualified Data.ByteString.Lazy as LBS
+import qualified Data.ByteString.Lazy.Char8 as LC8
 import           Data.JSString
 import           Data.Proxy
 import           Data.String.Conversions
@@ -127,15 +130,27 @@ aesonDecodeIO bs = case eitherDecode bs of
   Left msg -> throwIO $ ErrorCall
     ("aeson couldn't parse value: " ++ msg)
 
+{- bug hunting
+jsonStringify :: JSVal -> IO ByteString
+jsonStringify jsVal = do
+  mJSString <- fromJSVal jsVal :: (IO (Maybe JSString))
+  case mJSString of
+    Nothing -> return $ LC8.pack ""
+    Just jsString -> return $ cs . unpack $ jsString
+-}
 -- * ffi json stuff
-
+-- original code
 jsonStringify :: JSVal -> IO ByteString
 jsonStringify jsVal = cs <$> unpack <$> json_stringify jsVal
 foreign import javascript unsafe
   "JSON.stringify($1)"
   json_stringify :: JSVal -> IO JSString
 
+{- bug hunting
 jsonParse :: ByteString -> IO JSVal
+jsonParse = toJSVal . pack . cs
+-}
+-- original code
 jsonParse = json_parse . pack . cs
 foreign import javascript unsafe
   "JSON.parse($1)"
